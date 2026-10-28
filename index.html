@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Vote on ideas, not on names. A blind voting guide with 21 questions and your political profile.">
+<meta name="theme-color" content="#154273">
+<title>Blind Voting Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column (max 480px). Test screens in government blue, result screen in the colours of the voter's profile. One light visual world by design. */
+:root{
+  --gov:#154273; --gov-sky:#007bc7; --gov-soft:#e6f0f9; --gov-line:#c9d8e6; --ink:#0f2236; --muted:#4b5d70; --page:#f5f8fb;
+  --f-display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme: light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:3px solid var(--gov-sky);outline-offset:3px}
+.wrap{max-width:480px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);font-weight:800;margin:0;text-wrap:balance;line-height:1.05}
+p{margin:0}
+
+/* Welcome */
+.welcome{min-height:100vh;min-height:100dvh;background:var(--gov);color:#fff;display:flex;flex-direction:column}
+.welcome .wrap{flex:1;display:flex;flex-direction:column;gap:28px;padding-block:56px 40px}
+.w-tag{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#a9cdee}
+.welcome h1{font-size:clamp(44px,13vw,60px);color:#fff}
+.w-lede{font-size:18px;line-height:1.55;color:#e3eef8;max-width:34ch}
+.letters{display:flex;gap:8px;flex-wrap:wrap}
+.letters span{width:46px;height:46px;border-radius:12px;border:2px solid rgba(255,255,255,.55);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:22px}
+.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.steps li{display:grid;grid-template-columns:34px 1fr;gap:12px;align-items:start;font-size:15px;line-height:1.5;color:#e3eef8}
+.steps b{width:34px;height:34px;border-radius:50%;background:#fff;color:var(--gov);display:grid;place-items:center;font-size:15px}
+.w-actions{margin-top:auto;display:flex;flex-direction:column;gap:12px}
+.btn{border:none;border-radius:14px;min-height:54px;padding:0 22px;font-weight:700;font-size:17px}
+.btn-white{background:#fff;color:var(--gov)}
+.btn-line{background:transparent;color:#fff;border:2px solid rgba(255,255,255,.6)}
+.w-note{font-size:13px;color:#a9cdee}
+
+/* Question */
+.qbar{background:var(--gov);color:#fff;position:sticky;top:0;z-index:5;padding-top:env(safe-area-inset-top,0px)}
+.qbar .wrap{display:flex;flex-direction:column;gap:10px;padding-block:14px 16px}
+.qbar-top{display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.qbar-top button{background:none;border:none;color:#fff;font-weight:600;padding:6px 0;min-height:36px}
+.track{height:6px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
+.track i{display:block;height:100%;background:#7fc1ef;border-radius:99px;transition:width .3s ease}
+.qbody{padding-block:28px 48px;display:flex;flex-direction:column;gap:22px}
+.q-theme{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--gov-sky)}
+.qbody h2{font-size:28px;color:var(--gov);line-height:1.12}
+.q-ctx{font-size:14px;color:var(--muted);line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:grid;grid-template-columns:24px 1fr;gap:14px;align-items:start;text-align:left;width:100%;background:#fff;border:2px solid var(--gov-line);border-radius:16px;padding:16px;color:var(--ink);transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gov-sky)}
+.opt .dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--gov-line);margin-top:1px;display:grid;place-items:center}
+.opt strong{display:block;font-size:16px;margin-bottom:3px}
+.opt span.t{font-size:13.5px;color:var(--muted);line-height:1.45}
+.opt[aria-pressed="true"]{border-color:var(--gov);background:var(--gov-soft)}
+.opt[aria-pressed="true"] .dot{border-color:var(--gov);background:var(--gov);box-shadow:inset 0 0 0 4px var(--gov-soft)}
+.qnav{display:flex;justify-content:space-between;gap:12px}
+.btn-gov{background:var(--gov);color:#fff}
+.btn-gov:disabled{opacity:.35;cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--gov);border:2px solid var(--gov-line)}
+
+/* Result (colours come from CSS variables set per profile) */
+.result{background:var(--bg);color:var(--text);min-height:100vh}
+.hero{background:var(--dark);color:var(--onDark)}
+.hero .wrap{padding-block:calc(44px + env(safe-area-inset-top,0px)) 40px;display:flex;flex-direction:column;gap:18px}
+.hero-top{display:flex;align-items:center;gap:14px}
+.icon{width:60px;height:60px;border-radius:50%;background:var(--tile);display:grid;place-items:center;flex-shrink:0}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--eyebrow)}
+.hero h1{font-size:clamp(40px,12vw,48px);color:#fff}
+.hero p{font-size:15.5px;line-height:1.6}
+.traits{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--divider);padding-top:18px}
+.traits div{display:grid;grid-template-columns:20px 1fr;gap:8px;font-size:14.5px;line-height:1.45}
+.traits span:first-child{color:var(--eyebrow)}
+.rbody .wrap{padding-block:36px 64px;display:flex;flex-direction:column;gap:32px}
+.card{background:#fff;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:20px}
+.card h2,.dark h2{font-size:24px}
+.vrow{display:flex;flex-direction:column;gap:10px}
+.vlab{display:flex;justify-content:space-between;gap:12px;font-size:13px;font-weight:600}
+.vlab span:last-child{text-align:right}
+.vbar{position:relative;height:20px}
+.vbar .tr{position:absolute;left:0;right:0;top:6px;height:8px;border-radius:99px;background:var(--track)}
+.vbar .mid{position:absolute;left:50%;top:3px;width:2px;height:14px;background:var(--tick)}
+.vbar .pt{position:absolute;top:0;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--dot);border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.dark{background:var(--dark);color:var(--onDark);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:10px}
+.dark h2{color:#fff}
+.dark p{font-size:15px;line-height:1.6}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tile{background:var(--tile);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile strong{font-size:14px}
+.tile span{font-size:12.5px;line-height:1.45;color:var(--sub)}
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;margin:0 -24px -24px;padding:0 24px}
+.pcol{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pcol .L{font-family:var(--f-display);font-weight:800;font-size:28px}
+.pcol.first .L{font-size:42px;color:var(--dark)}
+.pblock{width:100%;border-radius:12px 12px 0 0;display:flex;flex-direction:column;align-items:center;padding-top:12px}
+.pblock strong{font-size:19px}
+.pblock span{font-size:11.5px}
+.match-note{font-size:13.5px;line-height:1.5;color:var(--sub)}
+details.all{border-top:1px solid var(--track);padding-top:14px}
+details.all summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--dark);list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:36px}
+details.all summary::-webkit-details-marker{display:none}
+details.all summary::after{content:"+";font-size:20px}
+details.all[open] summary::after{content:"–"}
+.lrow{display:grid;grid-template-columns:34px 1fr 42px;gap:10px;align-items:center;margin-top:10px}
+.lrow .b{width:34px;height:34px;border-radius:9px;background:var(--tile);display:grid;place-items:center;font-family:var(--f-display);font-weight:800}
+.lrow .m{height:10px;border-radius:99px;background:var(--tile);overflow:hidden}
+.lrow .m i{display:block;height:100%;background:var(--dot);border-radius:99px}
+.lrow .p{font-weight:700;font-size:14px;text-align:right;font-variant-numeric:tabular-nums}
+.others h2{font-size:24px;margin-bottom:6px}
+.others p.s{font-size:14px;color:var(--sub);margin-bottom:14px}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 calc(-1 * max(20px, env(safe-area-inset-left,0px)));padding:4px max(20px, env(safe-area-inset-left,0px)) 12px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.pcard{flex:0 0 78%;max-width:300px;scroll-snap-align:start;border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:10px;color:#fff}
+.pcard .icon{width:48px;height:48px}
+.pcard h3{font-size:22px;color:#fff}
+.pcard p{font-size:13.5px;line-height:1.5;opacity:.92}
+.r-actions{display:flex;flex-direction:column;gap:10px}
+.btn-dark{background:var(--dark);color:#fff}
+.btn-soft{background:#fff;color:var(--dark)}
+.keys{background:var(--tile);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.kh{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--sub)}
+.krow{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;font-size:14.5px;line-height:1.35}
+.kmark{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:14px}
+.ksub{font-size:12.5px;color:var(--sub)}
+.legend{display:flex;gap:18px;font-size:13px;font-weight:600}
+.legend span{display:flex;align-items:center;gap:8px}
+.lg{width:16px;height:16px;border-radius:50%;display:inline-block}
+.lg.you{background:var(--dot);border:3px solid #fff;box-shadow:0 0 0 1px var(--track)}
+.lg.let{background:#fff;border:3px solid var(--dark)}
+.vbar .pt.ring{background:#fff;border:3px solid var(--dark);box-shadow:none}
+.vrow .cm{margin-top:-2px;align-self:flex-start}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{border-radius:14px;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.stat strong{font-family:var(--f-display);font-size:30px;line-height:1}
+.stat span{font-size:12px;line-height:1.3}
+.s1{background:var(--dark);color:#fff}.s2{background:var(--second)}.s3{background:var(--tile)}
+.grp{display:flex;flex-direction:column;gap:8px}
+.grp h3{font-family:var(--f-body);font-weight:700;font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;font-weight:600;padding:6px 11px;border-radius:999px}
+.c1{background:var(--dark);color:#fff}.c2{background:var(--second);color:var(--text)}.c3{background:var(--tile);color:var(--sub);border:1px solid var(--track)}
+.cmp{display:grid;gap:6px;padding:14px 0;border-bottom:1px solid var(--track)}
+.cmp .ct{font-weight:700;font-size:14px}
+.cl{display:grid;grid-template-columns:34px 1fr;gap:8px;font-size:13px;line-height:1.4}
+.cl .who{font-weight:700;color:var(--sub)}
+.cm{justify-self:start;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px}
+.expl{font-size:14.5px;line-height:1.6}
+.scale{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.scale div{background:var(--tile);border-radius:12px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.scale b{font-size:15px}.scale span{font-size:10.5px;line-height:1.25;color:var(--sub)}
+.scale div:first-child{background:var(--dark);color:#fff}.scale div:first-child span{color:#fff}
+.fine{font-size:12.5px;line-height:1.55;color:var(--sub);text-align:center}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+const KEY = 'blind-voting-guide-v3';
+const LETTERS = ["A","E","H","I","K","L","M","O","Q","R","T","U","W","X","Y","Z"];
+
+const Q = [
+ ["Housing","How should the housing shortage be tackled?","The Netherlands is hundreds of thousands of homes short.",[
+  ["The government builds and freezes rents","The government builds social housing on a large scale again, rents are frozen and investors may no longer buy up homes."],
+  ["More social housing, stricter rent rules","Housing corporations get more money and room to build, and rent rules for the private sector become stricter."],
+  ["Mixed building, rent rules as they are","Build faster with a mix of social rent, mid-rent and owner-occupied homes. The current rent rules stay."],
+  ["Cut rules, let the market build","Limit building rules and objection procedures, build on the edges of cities and relax rent rules so investors return."],
+  ["Abolish rent regulation","The government steps back: rent regulation disappears and building and prices are left to the market."]]],
+ ["Healthcare","What should happen to the deductible in healthcare?","Everyone over 18 first pays part of their healthcare costs themselves each year.",[
+  ["No deductible, one public health fund","The deductible disappears and health insurers are replaced by one national health fund."],
+  ["Abolish the deductible","The deductible disappears completely; the rest of the system stays as it is."],
+  ["Lower the deductible a lot","The deductible goes down sharply, for example by halving it or capping it per treatment."],
+  ["Freeze the deductible","The deductible stays at the current amount, so premiums don't need to rise."],
+  ["More personal responsibility","The deductible may rise with costs, and people can choose more risk for a lower premium."]]],
+ ["Asylum","How should the Netherlands deal with asylum seekers?","In recent years tens of thousands of people applied for asylum in the Netherlands each year.",[
+  ["Generous reception","More reception places, safe legal routes to Europe and easy family reunification."],
+  ["Humane reception, fairly shared","Small-scale reception, shared fairly across municipalities and European countries."],
+  ["Stricter through European agreements","Carry out the European migration agreements: faster procedures at the external border and better returns."],
+  ["As strict as possible","An annual maximum, only temporary residence permits and limited family reunification."],
+  ["Asylum stop","The Netherlands no longer processes new asylum applications and controls its borders."]]],
+ ["Climate","How ambitious should climate policy be?","By law, emissions must be 55% lower in 2030 than in 1990, and the Netherlands must be climate neutral by 2050.",[
+  ["Faster: climate neutral by 2040","Targets are tightened and big polluters must cut emissions much faster."],
+  ["Meet current targets with extra measures","The targets stay and extra measures are added to actually meet them."],
+  ["Keep the targets, affordable pace","The targets stay, but the pace matches what people and businesses can afford."],
+  ["Relax the targets","No further than European agreements, and relax targets that are too costly or unrealistic."],
+  ["Scrap climate policy","The climate law and climate subsidies disappear; the money goes back to citizens."]]],
+ ["Energy","Where should our electricity come from in the future?","Coal plants are closing and gas is being phased out.",[
+  ["Only sun and wind","Fully commit to sun, wind and storage. No new nuclear plants."],
+  ["Mainly sun and wind","Sun and wind as the basis; nuclear only if there is really no other way."],
+  ["A mix with a few nuclear plants","Expand sun and wind and also build a limited number of nuclear plants."],
+  ["Invest heavily in nuclear","Several new nuclear plants as a stable base next to sun and wind."],
+  ["Mainly nuclear, fewer wind turbines","Nuclear becomes the main source; subsidies for wind and solar parks stop."]]],
+ ["Agriculture and nature","How should nitrogen emissions be tackled?","Too much nitrogen damages vulnerable nature; agriculture is the largest source.",[
+  ["Sharply reduce livestock","Greatly reduce the number of animals and help farmers switch to plant-based farming."],
+  ["Targeted buy-outs near nature","Keep strict targets and buy out farms near vulnerable nature, compulsorily if needed."],
+  ["Help farmers switch","The targets stay, but farmers get more time and money to work more sustainably."],
+  ["Steer on the state of nature","Steer on how nature is doing rather than nitrogen figures; innovation instead of shrinking."],
+  ["Abolish nitrogen rules","Nitrogen rules and targets disappear; farmers decide for themselves how they work."]]],
+ ["Taxes","Who should pay more or less tax?","Tax on work is relatively high in the Netherlands, tax on wealth relatively low.",[
+  ["Much heavier on the rich and big companies","A substantial wealth tax and higher profit tax; workers and low incomes gain a lot."],
+  ["Wealth and profit higher, work lower","Tax on wealth and profit goes up and tax on work goes down."],
+  ["Lower on work, fair tax on real returns","Less tax on work, and wealth taxed on what it really earns."],
+  ["Lower taxes, spare entrepreneurs","Taxes go down for everyone and entrepreneurs get more room."],
+  ["Much lower taxes, smaller government","Much less tax, paid for by a much smaller government."]]],
+ ["Income","What should happen to the minimum wage and benefits?","Social assistance and the state pension are linked to the minimum wage.",[
+  ["Minimum wage to €17 an hour","The minimum wage rises sharply and benefits and the state pension rise with it."],
+  ["Minimum wage gradually to €16","The minimum wage rises in steps; benefits rise with it."],
+  ["A limited increase","A small increase in the minimum wage; the link with benefits stays."],
+  ["Make work pay through taxes","The minimum wage stays the same; workers keep more through lower taxes."],
+  ["Make benefits more modest","Benefits become shorter or lower, so working is always more attractive."]]],
+ ["Pensions","What should happen to the state pension age?","The state pension age is around 67 and rises with life expectancy.",[
+  ["Back to 65","The state pension age goes back to 65."],
+  ["Freeze at 67","The state pension age rises no further."],
+  ["Heavy jobs retire earlier","People with physically demanding jobs can stop earlier, and the increase slows down."],
+  ["Keep the link","The state pension age keeps rising with life expectancy."],
+  ["Raise it faster","The age rises faster to cover the costs of an ageing population."]]],
+ ["Defence","How much should the Netherlands spend on defence?","In 2025 NATO countries agreed to grow to 3.5% of GDP, plus 1.5% for related spending.",[
+  ["Cut spending","Less money for defence and more for healthcare, education and climate."],
+  ["Keep the current level","About 2% of GDP, the old NATO agreement."],
+  ["Increase a little, cooperate in Europe","Spend more, mainly through joint European defence."],
+  ["To the new NATO norm","Grow to 3.5% of GDP, as agreed in NATO."],
+  ["Beyond the NATO norm","Invest even more, expand the armed forces and introduce a form of conscription."]]],
+ ["Europe","What role should the European Union play?","Many laws on trade, agriculture and the environment are made in Brussels.",[
+  ["A federal Europe","A European government, a European army and many more joint decisions."],
+  ["More European cooperation","More European powers on climate, migration and defence."],
+  ["As it is now","Cooperate where needed, without big changes."],
+  ["Less Europe","Powers back to the Netherlands and less money to Brussels."],
+  ["Leave the EU","The Netherlands leaves the European Union."]]],
+ ["Ukraine","Should the Netherlands keep supporting Ukraine?","Since the Russian invasion in 2022 the Netherlands has supported Ukraine with money, equipment and weapons.",[
+  ["Stop support","No more support, and push for direct peace negotiations."],
+  ["Humanitarian aid only","Help for civilians and refugees, but no more weapons."],
+  ["Support at the current level","Support continues as it is now."],
+  ["More support","More military and financial support, with agreements for several years."],
+  ["Maximum support","As much support as possible, including using frozen Russian assets."]]],
+ ["Middle East","How should the Netherlands position itself towards Israel and Gaza?","The war in Gaza led to much debate about arms deliveries, sanctions and recognising Palestine.",[
+  ["Boycott and recognise Palestine","A full arms embargo, a trade boycott and immediate recognition of Palestine."],
+  ["Sanctions and recognition","Targeted sanctions and recognition of a Palestinian state."],
+  ["Diplomatic pressure","Pressure through European treaties and the UN, without a boycott."],
+  ["Keep ties","Ties with Israel stay; criticism goes through dialogue."],
+  ["Support Israel","Explicitly support Israel and move the embassy to Jerusalem."]]],
+ ["Education","How should studying be paid for?","Students in higher education receive a basic grant again and pay tuition fees.",[
+  ["Free education","No tuition fees and a generous basic grant for everyone."],
+  ["Higher grant, lower fees","The basic grant goes up and tuition fees go down."],
+  ["As it is now","Basic grant and tuition fees stay as they are."],
+  ["Targeted savings","A fine for studying too long and fewer international students."],
+  ["Borrow to study","The basic grant disappears; students borrow on favourable terms."]]],
+ ["Democracy","How should citizens get more influence?","The Netherlands has no binding referendum.",[
+  ["Binding referendum on citizens' initiative","Citizens can put forward proposals that everyone then votes on, bindingly."],
+  ["Corrective binding referendum","Citizens can stop an adopted law with a binding referendum."],
+  ["Citizens' assemblies","Randomly selected citizens advise on big issues; referendums are advisory."],
+  ["Reform the electoral system","Elect candidates per region and strengthen the position of parliament."],
+  ["As it is now","The current system with elected representatives works well."]]],
+ ["Safety","How should crime be tackled?","Organised crime and drug crime are high on the political agenda.",[
+  ["Prevention first, legalise drugs","Focus on prevention, and sell drugs legally and regulated to take the market from criminals."],
+  ["Community officers and regulation","More community police officers and youth work, and regulate cannabis growing."],
+  ["Balance","More police, prevention and strict punishment where needed."],
+  ["Higher sentences","Higher sentences for violence, especially against emergency workers."],
+  ["Much tougher sentences","Minimum sentences, stricter prisons and deporting criminals with dual nationality."]]],
+ ["Medical ethics","Should there be more room for a self-chosen end of life?","Euthanasia is allowed for unbearable suffering without prospect of improvement.",[
+  ["Introduce a 'completed life' law","Older people who feel their life is complete get help to end it."],
+  ["Open to it, with safeguards","A 'completed life' option under strict conditions."],
+  ["As it is now","The current euthanasia law is well balanced."],
+  ["Cautious","No expansion; invest more in palliative care."],
+  ["Restrict it","Limit the euthanasia law, for example for dementia and psychological suffering."]]],
+ ["Animals","How should we treat animals in livestock farming?","More than 100 million farm animals are kept in the Netherlands.",[
+  ["Phase out factory farming","Intensive livestock farming is wound down."],
+  ["Stricter rules and a meat tax","More space per animal and a tax on meat."],
+  ["Better welfare, fair price","Improve animal welfare and give farmers a fair price, without a meat tax."],
+  ["No extra rules","The current rules are enough."],
+  ["Fewer rules","Farmers get more freedom; no meat tax."]]],
+ ["Mobility","Where should the money for transport go?","The speed limit on motorways is 100 km/h during the day.",[
+  ["Fewer cars","Lower speeds, fewer new roads and public transport free or much cheaper."],
+  ["Invest heavily in public transport","Much more money for trains and buses, and pay-per-use for driving."],
+  ["Public transport and roads","Invest in both public transport and new roads."],
+  ["More roads, back to 130","More asphalt and 130 km/h again during the day where possible."],
+  ["Cheaper driving","Lower fuel duty and lower road tax."]]],
+ ["Family","What should happen to childcare?","Working parents now receive an allowance for childcare.",[
+  ["Free for everyone","Childcare becomes free for all children, even if parents don't work."],
+  ["Almost free for working parents","Working parents pay almost nothing."],
+  ["Keep the allowance, make it simpler","The system stays but becomes simpler, so parents don't have to pay money back."],
+  ["Let parents choose","A higher child benefit, so parents choose between childcare and caring at home."],
+  ["Money straight to families","No childcare subsidy; the money goes to families through tax benefits."]]],
+ ["Development aid","How much money should go to development cooperation?","Development aid has been cut sharply in recent years.",[
+  ["To 0.7% of national income","Back to the international norm of 0.7%."],
+  ["Reverse the cuts","Back to the level before the latest cuts."],
+  ["Save a little","Slightly less money, mainly for reception in the region."],
+  ["Cut sharply","The budget goes down substantially."],
+  ["Abolish it","No more development aid."]]]
+];
+
+// Party positions per neutral code (0–4 per question, same order as Q). The code → party key is kept outside this page.
+const POS = {
+ p01:[2,3,3,3,3,3,3,3,3,3,3,3,4,3,4,3,4,3,2,4,3], p02:[1,2,1,0,2,1,1,2,3,3,0,4,1,1,2,0,0,1,1,0,0],
+ p03:[1,1,4,4,4,4,2,1,1,3,4,1,4,2,0,4,2,2,4,2,4], p04:[1,2,2,1,2,2,2,2,2,3,2,3,3,2,4,2,4,2,1,3,1],
+ p05:[0,0,2,1,0,2,0,0,0,1,3,1,0,0,1,2,2,2,1,0,1], p06:[3,3,3,2,3,3,3,3,3,3,2,3,3,3,4,3,1,3,3,1,3],
+ p07:[0,1,0,1,1,2,1,1,1,1,2,1,0,1,2,2,3,2,2,1,0], p08:[4,1,4,4,4,4,4,3,1,1,4,0,3,3,0,4,3,4,4,4,4],
+ p09:[2,3,1,1,2,1,2,2,3,3,1,4,1,2,1,0,0,1,1,0,1], p10:[2,1,3,3,3,3,2,1,0,2,2,2,2,2,1,3,1,2,2,2,3],
+ p11:[3,2,3,3,3,4,3,2,2,3,3,2,3,3,1,3,2,3,3,3,3], p12:[1,1,1,0,0,1,1,1,2,3,1,4,1,1,1,1,1,1,1,0,0],
+ p13:[2,2,3,2,3,2,2,2,2,3,3,3,2,2,3,2,3,2,2,2,2], p14:[1,1,0,0,0,0,1,1,1,0,3,2,0,1,1,1,1,0,0,1,0],
+ p15:[3,3,4,4,4,3,4,4,3,3,3,3,3,3,1,4,2,3,3,3,3], p16:[2,2,2,2,3,2,2,2,2,3,2,3,2,2,3,2,3,2,2,3,2]
+};
+const CODES = Object.keys(POS);
+
+// Six value axes, each built from the questions whose options run from the left term (0) to the right term (4).
+const AXES = [
+ {l:"Shared security", r:"Personal freedom", q:[0,1,6,7,13,19]},
+ {l:"Fast sustainability", r:"Feasible pace", q:[3,4,5,17,18]},
+ {l:"Open door", r:"Solid ground", q:[2,15,20]},
+ {l:"International", r:"Close to home", q:[10,11,20]},
+ {l:"New paths", r:"Proven values", q:[16,15,19]},
+ {l:"Citizens' voice", r:"Elected representatives", q:[14]}
+];
+
+const ICONS = {
+ peacemaker:'<path d="M6 26 C10 18 16 12 26 6"/><path d="M11 19 C8 18 6 15 6 12 C9 13 11 15 11 19 Z"/><path d="M16 14 C13 13 12 10 12 7 C15 8 16 11 16 14 Z"/><path d="M14 21 C15 18 18 17 21 17 C20 20 17 21 14 21 Z"/><path d="M19 15 C20 12 23 11 26 11 C25 14 22 15 19 15 Z"/>',
+ independent:'<circle cx="16" cy="16" r="12"/><path d="M20.5 11.5 L18 18 L11.5 20.5 L14 14 Z"/>',
+ nostalgic:'<path d="M9 4 H23"/><path d="M9 28 H23"/><path d="M11 4 C11 11 21 12 21 16 C21 20 11 21 11 28"/><path d="M21 4 C21 11 11 12 11 16 C11 20 21 21 21 28"/>',
+ visionary:'<path d="M4 23 H28"/><path d="M9 23 A7 7 0 0 1 23 23"/><path d="M16 6 V10"/><path d="M6.5 11.5 L9.3 14.3"/><path d="M25.5 11.5 L22.7 14.3"/><path d="M10 27 H22"/>',
+ protector:'<path d="M16 4 L26 8 V15 C26 21.5 21.8 26 16 28 C10.2 26 6 21.5 6 15 V8 Z"/><path d="M11.5 16 L15 19.5 L21 13"/>'
+};
+
+const PROFILES = {
+ peacemaker:{name:"The Peacemaker", proto:[30,45,40,48,52,55],
+  c:{dark:"#831843",bg:"#f8d8e8",track:"#f6c4dd",tick:"#ee79b1",dot:"#a82256",tile:"#fcecf4",sub:"#6f1339",text:"#4a0926",eyebrow:"#f6c4dd",divider:"#a82256",onDark:"#fcecf4",second:"#f6c4dd"},
+  intro:"Peacemakers bring people together. You look for solutions that as many people as possible can live with, and you make sure nobody is left out along the way.",
+  traits:["Makes sure everyone can take part.","Looks for what works for as many people as possible.","Preserves what is good, so others can build on it."],
+  vision:"A country where people keep talking to each other. Agreements that everyone can stand behind, and room for every voice at the table.",
+  interests:[["Healthcare","Good care, close to everyone"],["Housing","Affordable homes for every income"],["Democracy","Listening to all sides"],["Education","Equal chances from the start"],["Community","Neighbourhoods where people meet"],["Income","Enough to live on for everyone"]]},
+ independent:{name:"The Independent Thinker", proto:[80,70,70,65,40,75],
+  c:{dark:"#c4651f",bg:"#fcecd8",track:"#fae1c6",tick:"#f3b16a",dot:"#e58130",tile:"#fdf5ec",sub:"#864b18",text:"#4d2b0a",eyebrow:"#fde7cf",divider:"#e58130",onDark:"#ffffff",second:"#fae1c6"},
+  intro:"Independent Thinkers trust people to steer their own lives. You value freedom, initiative and taking responsibility, and you prefer practical solutions over big plans from above.",
+  traits:["Believes people should have the freedom to shape their own lives.","Encourages personal responsibility, initiative and entrepreneurship.","Seeks practical solutions that give people room to make their own choices."],
+  vision:"A country that trusts its people. Simple rules, room to build something of your own, and a government that steps in only where it is really needed.",
+  interests:[["Taxes","Keep more of what you earn"],["Entrepreneurship","Fewer rules for starting a business"],["Work","Making work always pay"],["Housing","Build faster, with less red tape"],["Education","Room for talent and choice"]]},
+ nostalgic:{name:"The Traditional Nostalgic", proto:[60,60,62,62,88,95],
+  c:{dark:"#3d175b",bg:"#ebdef6",track:"#e1cef1",tick:"#b17bdc",dot:"#3d175b",tile:"#f5eefa",sub:"#572182",text:"#200c30",eyebrow:"#e1cef1",divider:"#622592",onDark:"#f5eefa",second:"#e1cef1"},
+  intro:"Traditional Nostalgics feel connected to the past. You value customs, shared identity and the lessons of earlier generations, and you want the future to grow from what has always mattered.",
+  traits:["Values traditions and the lessons of the past.","Wants to preserve familiar ways of life and shared identity.","Believes the future should build on what has always mattered."],
+  vision:"A country that remembers where it comes from. Familiar places, customs and stories are passed on, so every new generation knows what it is building on.",
+  interests:[["Traditions","Keeping customs and holidays alive"],["Family","Room for families to do things their way"],["Heritage","Caring for monuments and local history"],["Community","Villages and clubs that hold people together"],["Education","Learning our shared history"],["Culture","Language, stories and music we share"]]},
+ visionary:{name:"The Future Visionary", proto:[30,18,15,40,10,30],
+  c:{dark:"#284c3f",bg:"#d7efe7",track:"#d7efe7",tick:"#8bd0b8",dot:"#305b4b",tile:"#f2faf7",sub:"#417965",text:"#172d25",eyebrow:"#bde4d8",divider:"#498971",onDark:"#f2faf7",second:"#d7efe7"},
+  intro:"Future Visionaries look far ahead. You think about the generations after us, and you are open to new ideas and new ways of deciding things together, even when that means trying something untested.",
+  traits:["Thinks of the generations after us.","Wants citizens to have more say and dares to experiment."],
+  vision:"A country that is ready for tomorrow. Green, inventive and democratic, where citizens help decide and new ideas get a fair chance.",
+  interests:[["Climate","Faster cuts in emissions"],["Democracy","Citizens' assemblies and referendums"],["Innovation","Room to test new ideas"],["Energy","Sun, wind and storage"],["Education","Skills for the jobs of tomorrow"],["Mobility","Better public transport"]]},
+ protector:{name:"The Protector of Values", proto:[55,85,90,70,70,15],
+  c:{dark:"#1d4a76",bg:"#dbeefd",track:"#c9e7fd",tick:"#85c6fa",dot:"#3579c1",tile:"#edf7fe",sub:"#2a639e",text:"#11314f",eyebrow:"#b7dffc",divider:"#306fb3",onDark:"#edf7fe",second:"#c9e7fd"},
+  intro:"Protectors of Values guard what makes a place feel like home. You want people to feel safe, you hold on to what works, and you make sure the next generation can build on a solid base.",
+  traits:["Preserves what is good, so others can build on it.","Makes sure people feel safe and at home."],
+  vision:"A safe and recognisable country, where agreements are kept and what works is passed on, so people can count on each other: in their street, at work and in old age.",
+  interests:[["Safety","More police in the neighbourhood"],["Pensions","A state pension you can rely on"],["Healthcare","Affordable care close to home"],["Migration","Clear limits and fast procedures"],["Family","Support for parents and carers"],["Sovereignty","Big decisions made in our own country"]]}
+};
+
+const app = document.getElementById('app');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fresh(){const L=shuffle(LETTERS),m={};CODES.forEach((c,i)=>m[c]=L[i]);return {letters:m,answers:Array(Q.length).fill(null),screen:'welcome',q:0};}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.letters&&Array.isArray(s.answers)&&s.answers.length===Q.length)return s;}catch(e){}return null;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S = load() || fresh();
+const answered = () => S.answers.filter(a => a !== null).length;
+
+function icon(key, stroke, size){return `<svg viewBox="0 0 32 32" width="${size}" height="${size}" aria-hidden="true" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[key]}</svg>`;}
+
+/* ---------- scoring ---------- */
+function axes(){ return axesFor(S.answers); }
+function axesFor(ans){
+  return AXES.map(ax => {
+    const vals = ax.q.map(i => ans[i]).filter(v => v !== null);
+    return {...ax, p: vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length/4*100) : 50};
+  });
+}
+function profileFor(ax){
+  let best=null, bd=Infinity;
+  for (const [k,p] of Object.entries(PROFILES)){
+    const d = Math.sqrt(p.proto.reduce((s,v,i)=>s+(v-ax[i].p)**2,0));
+    if (d < bd){bd=d;best=k;}
+  }
+  return best;
+}
+function letterScores(){
+  return CODES.map(code => {
+    let got=0,max=0;
+    S.answers.forEach((a,i)=>{ if(a===null) return; max+=1; got+=1-Math.abs(a-POS[code][i])/4; });
+    let same=0; S.answers.forEach((a,i)=>{ if(a!==null && a===POS[code][i]) same++; });
+    return {code, letter:S.letters[code], pct:max?Math.round(got/max*100):0, same, themes:S.answers.map((a,i)=>a!==null&&a===POS[code][i]?Q[i][0]:null).filter(Boolean)};
+  }).sort((a,b)=>b.pct-a.pct||a.letter.localeCompare(b.letter));
+}
+
+/* ---------- screens ---------- */
+function render(){
+  if (S.screen==='question') return renderQuestion();
+  if (S.screen==='result') return renderResult();
+  renderWelcome();
+}
+function go(screen, q){ S.screen=screen; if(q!==undefined) S.q=q; save(); render(); window.scrollTo({top:0,behavior:'auto'}); }
+
+function renderWelcome(){
+  document.body.style.background = '#154273';
+  const n = answered();
+  const demo = shuffle(LETTERS).slice(0,6).map(l=>`<span aria-hidden="true">${l}</span>`).join('');
+  app.innerHTML = `
+  <section class="welcome">
+    <div class="wrap">
+      <span class="w-tag">Blind Voting Guide</span>
+      <h1>Vote on ideas, not on names</h1>
+      <p class="w-lede">Every party has a random letter. You never see a name, logo or face. You simply choose the ideas you agree with.</p>
+      <div class="letters">${demo}</div>
+      <ol class="steps">
+        <li><b>1</b><span>Answer 21 short questions about housing, healthcare, climate and more.</span></li>
+        <li><b>2</b><span>Discover your political profile, based only on your own choices.</span></li>
+        <li><b>3</b><span>See which letters match your answers best.</span></li>
+      </ol>
+      <div class="w-actions">
+        <button class="btn btn-white" id="start">${n>0 && n<Q.length ? 'Continue the test' : 'Start the test'}</button>
+        ${n===Q.length ? '<button class="btn btn-line" id="see">See my result</button>' : ''}
+        ${n>0 ? '<button class="btn btn-line" id="reset">Start over</button>' : ''}
+        <p class="w-note">Takes about 5 minutes. Your answers stay on this device.</p>
+      </div>
+    </div>
+  </section>`;
+  document.getElementById('start').onclick = () => { const f = S.answers.findIndex(a=>a===null); go('question', f<0?0:f); };
+  const see = document.getElementById('see'); if (see) see.onclick = () => go('result');
+  const r = document.getElementById('reset'); if (r) r.onclick = () => { S = fresh(); go('question', 0); };
+}
+
+function renderQuestion(){
+  document.body.style.background = '#f5f8fb';
+  const i = S.q, [theme, question, ctx, opts] = Q[i], a = S.answers[i];
+  app.innerHTML = `
+  <header class="qbar">
+    <div class="wrap">
+      <div class="qbar-top"><button id="home">← Blind Voting Guide</button><span>Question ${i+1} of ${Q.length}</span></div>
+      <div class="track" aria-hidden="true"><i style="width:${(i/Q.length)*100}%"></i></div>
+    </div>
+  </header>
+  <section class="wrap qbody">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span class="q-theme">${esc(theme)}</span>
+      <h2>${esc(question)}</h2>
+      <p class="q-ctx">${esc(ctx)}</p>
+    </div>
+    <div class="opts" role="group" aria-label="${esc(question)}">
+      ${opts.map((o,k)=>`<button class="opt" data-k="${k}" aria-pressed="${a===k}"><span class="dot"></span><span><strong>${esc(o[0])}</strong><span class="t">${esc(o[1])}</span></span></button>`).join('')}
+    </div>
+    <div class="qnav">
+      <button class="btn btn-ghost" id="prev">${i===0?'Back':'Previous'}</button>
+      <button class="btn btn-gov" id="next" ${a===null?'disabled':''}>${i===Q.length-1?'See my result':'Next'}</button>
+    </div>
+  </section>`;
+  document.getElementById('home').onclick = () => go('welcome');
+  document.getElementById('prev').onclick = () => i===0 ? go('welcome') : go('question', i-1);
+  document.getElementById('next').onclick = () => next(i);
+  app.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+    S.answers[i] = +b.dataset.k; save();
+    app.querySelectorAll('.opt').forEach(x => x.setAttribute('aria-pressed', x===b));
+    document.getElementById('next').disabled = false;
+  });
+}
+function next(i){ if (i < Q.length-1) go('question', i+1); else go('result'); }
+
+function renderResult(){
+  if (answered() === 0) return go('question', 0);
+  const ax = axes(), key = profileFor(ax), P = PROFILES[key], c = P.c;
+  const scores = letterScores(), [first, second, third] = scores;
+  document.body.style.background = c.bg;
+  const vars = Object.entries(c).map(([k,v])=>`--${k}:${v}`).join(';');
+  const fp = POS[first.code];
+  const rows = Q.map((q,i)=>({theme:q[0], opts:q[3], you:S.answers[i], them:fp[i]})).filter(r=>r.you!==null);
+  const dist = r => Math.abs(r.you - r.them);
+  const same = rows.filter(r=>dist(r)===0), close = rows.filter(r=>dist(r)===1), far = rows.filter(r=>dist(r)>=2);
+  const lax = axesFor(fp), lkey = profileFor(lax), LP = PROFILES[lkey];
+  const closeness = d => d < 15 ? ['Very close','c1'] : d < 30 ? ['Close','c2'] : ['Different','c3'];
+  const keyAxes = ax.map((v,i)=>({i, w:Math.abs(v.p-50)})).sort((a,b)=>b.w-a.w).slice(0,3).map(o=>o.i);
+  const poleOf = (i, p) => p >= 50 ? AXES[i].r : AXES[i].l;
+  const sharedKeys = keyAxes.filter(i => Math.abs(ax[i].p - lax[i].p) < 15 || (ax[i].p - 50) * (lax[i].p - 50) > 0);
+  const fitLine = lkey === key
+    ? `The ideas of letter ${first.letter} fit the same political profile as yours: ${P.name}. That is why it ends up at the top.`
+    : `On its own, letter ${first.letter} is closest to ${LP.name}. It still matches you best, because it shares the values that make you ${P.name}.`;
+  const chips = (list, cls) => list.length ? `<div class="chips">${list.map(r=>`<span class="chip ${cls}">${esc(r.theme)}</span>`).join('')}</div>` : '<p class="match-note">None</p>';
+  app.innerHTML = `
+  <div class="result" style="${vars}">
+    <section class="hero">
+      <div class="wrap">
+        <div class="hero-top"><span class="icon">${icon(key, c.dark, 32)}</span><span class="eyebrow">Your political profile</span></div>
+        <h1>${esc(P.name)}</h1>
+        <p>${esc(P.intro)}</p>
+        <div class="traits">${P.traits.map(t=>`<div><span>→</span><span>${esc(t)}</span></div>`).join('')}</div>
+      </div>
+    </section>
+    <div class="rbody"><div class="wrap">
+      <section class="card">
+        <h2>Values</h2>
+        ${ax.map(v=>`<div class="vrow"><div class="vlab"><span>${esc(v.l)}</span><span>${esc(v.r)}</span></div><div class="vbar"><div class="tr"></div><div class="mid"></div><div class="pt" style="left:${v.p}%"></div></div></div>`).join('')}
+      </section>
+      <section class="dark"><h2>Vision</h2><p>${esc(P.vision)}</p></section>
+      <section class="card">
+        <h2>Interests</h2>
+        <div class="tiles">${P.interests.map(([h,t])=>`<div class="tile"><strong>${esc(h)}</strong><span>${esc(t)}</span></div>`).join('')}</div>
+      </section>
+      <section class="card">
+        <h2>Your match</h2>
+        <p class="match-note">Based on your ${answered()} answers, these letters share your ideas best.</p>
+        <div class="podium">
+          <div class="pcol"><span class="L">${second.letter}</span><div class="pblock" style="height:96px;background:var(--second)"><strong>${second.pct}%</strong><span style="color:var(--sub)">2nd</span></div></div>
+          <div class="pcol first"><span class="L">${first.letter}</span><div class="pblock" style="height:140px;background:var(--dark);color:#fff"><strong style="font-size:25px">${first.pct}%</strong><span>Best match</span></div></div>
+          <div class="pcol"><span class="L">${third.letter}</span><div class="pblock" style="height:76px;background:var(--tile)"><strong>${third.pct}%</strong><span style="color:var(--sub)">3rd</span></div></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Why letter ${first.letter} fits your profile</h2>
+        <p class="expl">${esc(fitLine)}</p>
+        <div class="keys">
+          <span class="kh">Your strongest values</span>
+          ${keyAxes.map(i => { const ok = sharedKeys.includes(i); return `<div class="krow"><span class="kmark ${ok?'c1':'c3'}">${ok?'✓':'–'}</span><span><strong>${esc(poleOf(i, ax[i].p))}</strong><br><span class="ksub">${ok?`Letter ${first.letter} shares this with you`:`Letter ${first.letter} leans the other way here`}</span></span></div>`; }).join('')}
+        </div>
+        <div class="legend"><span><i class="lg you"></i>You</span><span><i class="lg let"></i>Letter ${first.letter}</span></div>
+        ${ax.map((v,i)=>{ const d=Math.abs(v.p-lax[i].p), [lab,cls]=closeness(d); return `<div class="vrow"><div class="vlab"><span>${esc(v.l)}</span><span>${esc(v.r)}</span></div><div class="vbar"><div class="tr"></div><div class="mid"></div><div class="pt ring" style="left:${lax[i].p}%"></div><div class="pt" style="left:${v.p}%"></div></div><span class="cm ${cls}">${lab}</span></div>`; }).join('')}
+      </section>
+      <section class="card">
+        <h2>Themes you share with letter ${first.letter}</h2>
+        <div class="stats">
+          <div class="stat s1"><strong>${same.length}</strong><span>Same choice</span></div>
+          <div class="stat s2"><strong>${close.length}</strong><span>One step apart</span></div>
+          <div class="stat s3"><strong>${far.length}</strong><span>Further apart</span></div>
+        </div>
+        <div class="grp"><h3>Where you agree</h3>${chips(same,'c1')}</div>
+        <div class="grp"><h3>Close to your view</h3>${chips(close,'c2')}</div>
+        <div class="grp"><h3>Where you see it differently</h3>${chips(far,'c3')}</div>
+        <details class="all"><summary>Compare all ${rows.length} answers with letter ${first.letter}</summary>
+          ${rows.map(r=>`<div class="cmp"><span class="ct">${esc(r.theme)}</span><div class="cl"><span class="who">You</span><span>${esc(r.opts[r.you][0])}</span></div><div class="cl"><span class="who">${first.letter}</span><span>${esc(r.opts[r.them][0])}</span></div><span class="cm ${dist(r)===0?'c1':dist(r)===1?'c2':'c3'}">${dist(r)===0?'Same choice':dist(r)===1?'One step apart':(dist(r))+' steps apart'}</span></div>`).join('')}
+        </details>
+      </section>
+      <section class="card" style="padding-top:10px;padding-bottom:14px">
+        <details class="all" style="border-top:none"><summary>All ${scores.length} letters</summary>
+          ${scores.map(s=>`<div class="lrow"><span class="b">${s.letter}</span><span class="m"><i style="width:${s.pct}%"></i></span><span class="p">${s.pct}%</span></div>`).join('')}
+        </details>
+      </section>
+      <p class="fine">You don't know which party belongs to which letter, and that is the point. Your answers are saved on this device only.</p>
+    </div></div>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
