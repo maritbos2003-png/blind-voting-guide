@@ -165,7 +165,9 @@ details.all[open] summary::after{content:"–"}
 <main id="app"></main>
 
 <script>
-const KEY = 'blind-voting-guide-v3';
+const KEY = 'blind-voting-guide-v4';
+// Fixed letters: the same for every user.
+const FIXED = {p01:"U",p02:"W",p03:"Y",p04:"I",p05:"R",p06:"E",p07:"K",p08:"M",p09:"L",p10:"A",p11:"Q",p12:"Z",p13:"O",p14:"X",p15:"T",p16:"H"};
 const LETTERS = ["A","E","H","I","K","L","M","O","Q","R","T","U","W","X","Y","Z"];
 
 const Q = [
@@ -364,8 +366,8 @@ const PROFILES = {
 const app = document.getElementById('app');
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function fresh(){const L=shuffle(LETTERS),m={};CODES.forEach((c,i)=>m[c]=L[i]);return {letters:m,answers:Array(Q.length).fill(null),screen:'welcome',q:0};}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.letters&&Array.isArray(s.answers)&&s.answers.length===Q.length)return s;}catch(e){}return null;}
+function fresh(){return {letters:Object.assign({},FIXED),answers:Array(Q.length).fill(null),screen:'welcome',q:0};}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&s.letters&&Array.isArray(s.answers)&&s.answers.length===Q.length){s.letters=Object.assign({},FIXED);return s;}}catch(e){}return null;}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 let S = load() || fresh();
 const answered = () => S.answers.filter(a => a !== null).length;
@@ -414,7 +416,7 @@ function renderWelcome(){
     <div class="wrap">
       <span class="w-tag">Blind Voting Guide</span>
       <h1>Vote on ideas, not on names</h1>
-      <p class="w-lede">Every party has a random letter. You never see a name, logo or face. You simply choose the ideas you agree with.</p>
+      <p class="w-lede">Every party has its own letter, the same for everyone. You never see a name, logo or face. You simply choose the ideas you agree with.</p>
       <div class="letters">${demo}</div>
       <ol class="steps">
         <li><b>1</b><span>Answer 21 short questions about housing, healthcare, climate and more.</span></li>
